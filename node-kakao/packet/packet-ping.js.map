@@ -1,0 +1,1 @@
+{"version":3,"file":"packet-ping.js","sourceRoot":"","sources":["../../src/packet/packet-ping.ts"],"names":[],"mappings":";;;AAAA,yDAAmF;AAQnF,MAAa,aAAc,SAAQ,wCAAqB;IAEpD,IAAI,UAAU;QACV,OAAO,MAAM,CAAC;IAClB,CAAC;IAED,UAAU;QACN,OAAO,EAEN,CAAC;IACN,CAAC;CAEJ;AAZD,sCAYC;AAED,MAAa,aAAc,SAAQ,yCAAsB;IAErD,IAAI,UAAU;QACV,OAAO,MAAM,CAAC;IAClB,CAAC;IAED,YAAY;IAEZ,CAAC;CAEJ;AAVD,sCAUC"}
