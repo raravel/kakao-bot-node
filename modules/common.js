@@ -65,3 +65,20 @@ exports.runCmd = (cmd, e) => {
     }
     return str;
 };
+
+exports.sendToAllChannels = (msg) => {
+	let sender = "sendText";
+	if ( msg ) {
+		if ( typeof msg === "string" ) {
+			sender = "sendText";
+		} else {
+			sender = "sendTemplate";
+		}
+	} else {
+		return;
+	}
+
+	for ( channel of global.rooms ) {
+		channel[sender](msg);
+	}
+};
