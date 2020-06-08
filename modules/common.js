@@ -82,3 +82,32 @@ exports.sendToAllChannels = (msg) => {
 		channel[sender](msg);
 	}
 };
+
+exports.sendToChannel = (channel, msg) => {
+	let sender = "sendText";
+	if ( msg ) {
+		if ( typeof msg === "string" ) {
+			sender = "sendText";
+		} else {
+			sender = "sendTemplate";
+		}
+	} else {
+		return;
+	}
+
+	for ( ch of global.rooms ) {
+		if ( ch.id.toNumber() === channel.id.toNumber() ) {
+			channel[sender](msg);
+			return;
+		}
+	}
+};
+
+exports.isAcceptCheannel = (channel) => {
+	for ( ch of global.rooms ) {
+		if ( ch.id.toNumber() === channel.id.toNumber() ) {
+			return true;
+		}
+	}
+	return false;
+};

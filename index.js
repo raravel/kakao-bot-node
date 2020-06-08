@@ -1,6 +1,7 @@
 // native modules
 const fs = require('fs');
 const crypto = require('crypto');
+const dns = require('dns');
 
 // package modules
 const axios = require('axios');
@@ -10,6 +11,7 @@ const BSON = require('bson');
 const Kaling = require('./modules/kaling.js');
 const kakao = require('./node-kakao');
 const M = require('./modules/common.js');
+const dnsPromise = dns.promises;
 //require('./modules/polling.js');
 
 
@@ -19,10 +21,41 @@ const Long = BSON.Long;
 const config = require('./config.json');
 const commandList = require('./modules/cmd.js');
 
+const checkInValidLink = async (text) => {
+	const urls = config["accept-url"];
+
+	//const textUrls = text.match(/http(s*):\/\/[\w|-]\.[\w|\.|-]+/gi);
+	const textUrls = text.match(/[a-z|-]+\.[a-z|\.]+/gi);
+	
+	if ( textUrls ) {
+		for ( turl of textUrls ) {
+			try {
+				await dnsPromise.lookup(turl, { familly: 4, hints: dns.ADDRCONFIG | dns.V4MAPPED });
+
+				let flag = false;
+				for ( url of urls ) {
+					const regex = new RegExp(url + "$", 'gi');
+					const result = turl.match(regex);
+
+					if ( result ) {
+						flag = true;
+						break;
+					}
+				}
+
+				if ( !flag ) {
+					return turl;
+				}
+			} catch {
+			}
+
+		}
+	}
+	return false;
+};
 
 (async () => {
 	const res = await client.login(config.email, config.passwd, config.duuid, true);
-
 
 	global.channels = [];
 	global.rooms = [];
@@ -39,8 +72,54 @@ const commandList = require('./modules/cmd.js');
 		}
 	}
 
+	global.assignedUsers = [];
 
 	client.on('message', async (chat) => {
+		if ( !M.isAcceptCheannel(chat.channel) ) {
+			return;
+		}
+
+		let invalidUrl = await checkInValidLink(chat.text);
+		if ( invalidUrl ) {
+			const invalidUrlLen = invalidUrl.length;
+			const hideLen = Math.ceil(invalidUrlLen * 0.4);
+			let hideUrl = "";
+			for ( let i=0;i<invalidUrlLen;i++ ) {
+				if ( i < hideLen ) {
+					if ( invalidUrl[i] !== '.' ) {
+						hideUrl += 'x';
+						continue;
+					}
+				}
+				if ( i < invalidUrlLen - 1 ) {
+					hideUrl += invalidUrl[i];
+				} else {
+					hideUrl += 'x';
+				}
+			}
+
+			chat.channel.sendText(`${chat.sender.nickname}님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.\n\n${hideUrl}`);
+			result = await chat.channel.hideChat(chat);
+			if ( result ) {
+				result = await chat.channel.kickMember(chat.sender);
+				if ( result ) {
+					chat.channel.sendText('성공했습니다.');
+				} else {
+					chat.channel.sendText('실패했습니다.\n3회 더 시도합니다.');
+
+					for ( let i=0;i<3;i++ ) {
+						result = await chat.channel.kickMember(chat.sender);
+						if ( result ) {
+							chat.channel.sendText('성공했습니다.');
+							return;
+						}
+					}
+					chat.channel.sendText('실패했습니다.');
+				}
+			}
+			return;
+		}
+
 		if ( M.isCmd(chat) ) {
 			cmd = commandList[chat.cmd];
 			if ( cmd ) {
@@ -57,6 +136,10 @@ const commandList = require('./modules/cmd.js');
 	});
 
 	client.on('join', (channel, user) => {
+		if ( !M.isAcceptCheannel(channel) ) {
+			return;
+		}
+
 		const attachment = Kaling({
 			type: kakao.CustomType.FEED,
 			title: `${user.nickName}님 환영합니다!`,
