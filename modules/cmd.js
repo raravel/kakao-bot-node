@@ -3,9 +3,11 @@ const M = require('./common.js');
 const Kaling = require('./kaling.js');
 const BSON = require('bson');
 const Long = BSON.Long;
+const fs = require('fs');
 
 module.exports = {
     "등록": (chat) => {
+		console.log(chat);
 		M.isAdmin(chat)
 			.then(() => {
 				const idx = global.channels.findIndex(c => new Long(c.low, c.high).toNumber() === chat.channel.id.toNumber());
@@ -27,6 +29,13 @@ module.exports = {
 			})
 			.catch(err => {
 			});
+	},
+	"멘션": (chat) => {
+		const mention = new kakao.ChatMention(chat.sender);
+		chat.channel.sendText(mention);
+	},
+	"feed": (chat) => {
+		chat.channel.sendRichFeed(chat.content);
 	},
 	"템": (chat) => {
 		const attachment = Kaling({
