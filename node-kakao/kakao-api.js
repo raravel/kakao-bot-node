@@ -18,13 +18,13 @@ class KakaoAPI {
         return 'win32';
     }
     static get Version() {
-        return '3.1.2';
+        return '3.1.1';
     }
     static get InternalAppVersion() {
         return `${this.Version}.${this.InternalAppSubVersion}`;
     }
     static get InternalAppSubVersion() {
-        return '2472';
+        return '2441';
     }
     static get OSVersion() {
         return '10.0';

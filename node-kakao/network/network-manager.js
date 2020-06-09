@@ -144,7 +144,6 @@ class TalkPacketHandler extends events_1.EventEmitter {
         let chatlog = packet.Chatlog;
         let feed = chat_feed_1.ChatFeed.getFeedFromText(chatlog.Text);
         let idList = [];
-
         if (feed.FeedType === feed_type_1.FeedType.INVITE && feed.MemberList) {
             for (let member of feed.MemberList) {
                 idList.push(member.UserId);
@@ -153,26 +152,19 @@ class TalkPacketHandler extends events_1.EventEmitter {
         else if (feed.FeedType === feed_type_1.FeedType.OPENLINK_JOIN && feed.Member) {
             idList.push(feed.Member.UserId);
         }
-
-		const myFeed = JSON.parse(packet.Chatlog.Text);
-		if ( idList.length > 0 ) {
-			for (let id of idList) {
-				let user = this.UserManager.get(id);
-				if (user.isClientUser()) {
-					user.emit('join', channel, feed);
-					this.Client.emit('join_channel', channel);
-				}
-				else {
-					await channelInfo.addUserInfo(id);
-					user.emit('join', channel, feed);
-					channel.emit('join', user, feed);
-					this.Client.emit('user_join', channel, user, feed);
-					this.Client.emit('join', channel, myFeed.members && myFeed.members[0]);
-				}
-			}
-		} else {
-			this.Client.emit('join', channel, myFeed.members && myFeed.members[0]);
-		}
+        for (let id of idList) {
+            let user = this.UserManager.get(id);
+            if (user.isClientUser()) {
+                user.emit('join', channel, feed);
+                this.Client.emit('join_channel', channel);
+            }
+            else {
+                await channelInfo.addUserInfo(id);
+                user.emit('join', channel, feed);
+                channel.emit('join', user, feed);
+                this.Client.emit('user_join', channel, user, feed);
+            }
+        }
     }
     async syncMessageDelete(packet) {
         let chat = await this.ChatManager.chatFromChatlog(packet.Chatlog);

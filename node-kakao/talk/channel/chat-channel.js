@@ -10,6 +10,7 @@ const loco_noti_read_1 = require("../../packet/loco-noti-read");
 const json_util_1 = require("../../util/json-util");
 const channel_info_1 = require("./channel-info");
 const open_link_type_1 = require("../open/open-link-type");
+const feed_type_1 = require("../feed/feed-type");
 class ChatChannel extends events_1.EventEmitter {
     constructor(client, id, type) {
         super();
@@ -54,6 +55,14 @@ class ChatChannel extends events_1.EventEmitter {
         let userId = this.client.ClientUser.Id;
         let res = await this.client.NetworkManager.requestPacketRes(new packet_message_1.PacketMessageWriteReq(this.client.ChatManager.getNextMessageId(), this.id, text, chat_type_1.ChatType.Text, false, extraText));
         let chat = await this.client.ChatManager.chatFromChatlog(new chatlog_struct_1.ChatlogStruct(res.LogId, res.PrevLogId, userId, this.id, chat_type_1.ChatType.Text, text, Math.floor(Date.now() / 1000), extraText, res.MessageId));
+        return chat;
+    }
+    async sendRichFeed(text) {
+        let str = JSON.stringify({ feedType: feed_type_1.FeedType.RICH_CONTENT, });
+        let extraText = JSON.stringify({ text, });
+        let userId = this.client.ClientUser.Id;
+        let res = await this.client.NetworkManager.requestPacketRes(new packet_message_1.PacketMessageWriteReq(this.client.ChatManager.getNextMessageId(), this.id, str, chat_type_1.ChatType.Feed, false, extraText));
+        let chat = await this.client.ChatManager.chatFromChatlog(new chatlog_struct_1.ChatlogStruct(res.LogId, res.PrevLogId, userId, this.id, chat_type_1.ChatType.Text, str, Math.floor(Date.now() / 1000), extraText, res.MessageId));
         return chat;
     }
     async sendTemplate(template) {

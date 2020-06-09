@@ -302,7 +302,7 @@ class CustomFeedContent extends CustomContent {
             if (rawData['TI']['FT'])
                 this.FullText = rawData['TI']['FT'];
         }
-        this.ButtonStyle = rawData['BUT'] || this.ButtonStyle;
+        this.ButtonStyle = rawData['BUT'];
         if (rawData['BUL']) {
             this.ButtonList = [];
             for (let rawButton of rawData['BUL']) {
@@ -672,8 +672,8 @@ class CustomInfo {
         this.Ad = Ad;
     }
     readRawContent(rawData) {
-        this.Message = rawData['ME'] || this.Message;
-        this.Type = rawData['TP'] || this.Type;
+        this.Message = rawData['ME'];
+        this.Type = rawData['TP'];
         this.ServiceId = rawData['SID'];
         this.ProviderId = rawData['DID'];
         this.AndroidVersion = rawData['VA'];
@@ -686,7 +686,7 @@ class CustomInfo {
         this.Secure = rawData['LOCK'];
         if (rawData['L']) {
             this.Link = new URLFragment();
-            this.Link.readRawContent();
+            this.Link.readRawContent(rawData['L']);
         }
         if (rawData['SL']) {
             this.ServiceLink = new URLFragment();
