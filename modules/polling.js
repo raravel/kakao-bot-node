@@ -28,7 +28,7 @@ const createRecommandLives = async () => {
 	const attachment = Kaling({
 		type: kakao.CustomType.LIST,
 		header: {
-			title: `추천하는 방송`,
+			title: `지금, 이런 방송은 어때요?`,
 			link: 'https://www.spooncast.net/kr/',
 			bg: 'https://www.spooncast.net/kr_share_default.png',
 		},
@@ -78,9 +78,10 @@ global.interval = setInterval(async () => {
 
 	const { sec, min, hour, day } = global.poll;
 
-	if ( global.poll.checker('min', 1) ) {
+	if ( global.poll.checker('hour', 1) ) {
 		const crlTemplate = await createRecommandLives();
 		M.sendToAllChannels(crlTemplate);
+        consola.success('등록된 모든 방에, 방송 추천을 전송했습니다.');
 	}
 
 }, 1000);

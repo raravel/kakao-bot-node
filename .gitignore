@@ -9,3 +9,4 @@ package-lock.json
 node-kakao
 config.json
 test
+.logs
