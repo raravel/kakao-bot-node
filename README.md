@@ -18,3 +18,9 @@ pic = fs.readFileSync('picture.jpg');
 picAtt = await kakao.PhotoAttachment.fromBuffer(pic, 'picture.jpg', 698, 419);
 att = new kakao.AttachmentTemplate(picAtt);
 ```
+
+### 멘션
+```javascript
+const mention = new kakao.ChatMention(chat.sender);
+chat.channel.sendText(mention);
+```

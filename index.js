@@ -54,6 +54,14 @@ const checkInValidLink = async (text) => {
 	return false;
 };
 
+const psleep = (time) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+        }, time);
+    });
+}
+
 (async () => {
 	const res = await client.login(config.email, config.passwd, config.duuid, true);
 
@@ -75,6 +83,31 @@ const checkInValidLink = async (text) => {
 	global.assignedUsers = [];
 
 	client.on('message', async (chat) => {
+        if ( chat.text === "!등록" ) {
+            M.isAdmin(chat)
+                .then(() => {
+                    const idx = global.channels.findIndex(c => new Long(c.low, c.high).toNumber() === chat.channel.id.toNumber());
+                    if ( idx >= 0 ) {
+                        chat.channel.sendText("이미 등록된 방입니다.");
+                        return;
+                    }
+
+                    global.channels.push(chat.channel.id);
+                    global.rooms.push(chat.channel);
+                    try {  
+                        fs.writeFileSync('channels.db', JSON.stringify(global.channels, null, '\t'), { encoding: 'utf8' });
+                        chat.channel.sendText(`[${chat.channel.channelInfo.name}](${chat.channel.id.toNumber()}) 을(를) 등록했습니다.`);
+                        return;
+                    } catch(err) {
+                        chat.channel.sendText(`방 등록에 실패했습니다. ${err.message}`);
+                        return;
+                    }
+                })
+                .catch(err => {
+                });
+            return;
+        }
+
 		if ( !M.isAcceptCheannel(chat.channel) ) {
 			return;
 		}
@@ -113,6 +146,7 @@ const checkInValidLink = async (text) => {
 							chat.channel.sendText('성공했습니다.');
 							return;
 						}
+                        await psleep(1000);
 					}
 					chat.channel.sendText('실패했습니다.');
 				}
@@ -128,7 +162,17 @@ const checkInValidLink = async (text) => {
 					if ( typeof result === "string" ) {
 						chat.channel.sendText(result);
 					} else {
-                        if ( !result.then ) {
+                        if ( result.then ) {
+                            result.then(msg => {
+                                if ( msg ) {
+                                    if ( typeof msg === "string" ) {
+                                        chat.channel.sendText(msg);
+                                    } else {
+                                        chat.channel.sendTemplate(msg);
+                                    }
+                                }
+                            });
+                        } else {
                             chat.channel.sendTemplate(result);
                         }
 					}
