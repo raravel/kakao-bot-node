@@ -128,7 +128,9 @@ const checkInValidLink = async (text) => {
 					if ( typeof result === "string" ) {
 						chat.channel.sendText(result);
 					} else {
-						chat.channel.sendTemplate(result);
+                        if ( !result.then ) {
+                            chat.channel.sendTemplate(result);
+                        }
 					}
 				}
 			}

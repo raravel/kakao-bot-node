@@ -34,9 +34,6 @@ module.exports = {
 		const mention = new kakao.ChatMention(chat.sender);
 		chat.channel.sendText(mention);
 	},
-	"feed": (chat) => {
-		chat.channel.sendRichFeed(chat.content);
-	},
 	"템": (chat) => {
 		const attachment = Kaling({
 			type: kakao.CustomType.FEED,

@@ -5,3 +5,5 @@ package-lock.json
 
 *.db
 */**/*.db
+
+node-kakao
