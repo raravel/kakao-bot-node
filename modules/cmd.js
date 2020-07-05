@@ -17,7 +17,7 @@ module.exports = {
             return "명령어 뒤에 닉네임을 붙여야 합니다.";
         }
 
-        if ( tag.replace(/([A-Z]|[a-z]|[0-9]|\.|-)+/, "").trim() ) {
+        if ( tag.replace(/([A-Z]|[a-z]|[0-9]|\.|_)+/, "").trim() ) {
             return "고유 닉네임 형식이 맞지 않습니다.";
         }
 
