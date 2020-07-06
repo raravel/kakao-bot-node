@@ -31,12 +31,24 @@ const checkInValidLink = async (text) => {
 
 	//const textUrls = text.match(/http(s*):\/\/[\w|-]\.[\w|\.|-]+/gi);
 	const textUrls = text.match(/([a-z]|[0-9]|-)+\.([a-z]|[0-9]|\.)+/gi);
-	
 	if ( textUrls ) {
-        consola.info("Url 을 감지한 것 같습니다. DNS 요청을 보냅니다.");
 		for ( turl of textUrls ) {
+			const ipMatch = turl.match(/([0-9]|\.)+/g);
+
+			if ( ipMatch ){
+				if ( ipMatch[0] === turl ) {
+					if ( turl.match(/[0-9]{0,3}\.[0-9]{0,3}\.[0-9]{0,3}\.[0-9]{0,3}/) ) {
+						consola.info('ip 형식을 감지했습니다.');
+					} else {
+						consola.info('유효하지 않은 주소입니다. 검사하지 않습니다.');
+						continue;
+					}
+				}
+			}
+
             consola.info(`[${turl}] 을 검사합니다.`);
 			try {
+				consola.info("Url 을 감지한 것 같습니다. DNS 요청을 보냅니다.");
 				await dnsPromise.lookup(turl, { familly: 4, hints: dns.ADDRCONFIG | dns.V4MAPPED });
 
 				let flag = false;

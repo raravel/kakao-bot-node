@@ -1,5 +1,6 @@
 #!/bin/sh
 
+forever stopall
 P="/home/youn/proj/node/kakao/pc-bot/"
 LOGF="$(date +%Y%M%d-%H%M%S).log"
 LOGP="${P}.logs/"
