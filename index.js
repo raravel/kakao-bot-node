@@ -10,7 +10,7 @@ const consola = require('consola');
 
 // custom modules
 const Kaling = require('./modules/kaling.js');
-const kakao = require('./node-kakao');
+const kakao = require('node-kakao');
 const M = require('./modules/common.js');
 const dnsPromise = dns.promises;
 const searchIndent = require('./modules/indent.js');

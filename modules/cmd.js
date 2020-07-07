@@ -1,4 +1,4 @@
-const kakao = require('../node-kakao');
+const kakao = require('node-kakao');
 const M = require('./common.js');
 const Kaling = require('./kaling.js');
 const BSON = require('bson');

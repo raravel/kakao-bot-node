@@ -1,7 +1,11 @@
 const M = require('./common.js');
 const axios = require('axios');
-const kakao = require('../node-kakao');
+const kakao = require('node-kakao');
 const Kaling = require('./kaling.js');
+
+const recommandBlackList = [
+	4113440, // 박룰루
+];
 
 const createRecommandLives = async () => {
 	const livesRes = await axios.get('https://kr-api.spooncast.net/lives/discovered/');
@@ -9,6 +13,10 @@ const createRecommandLives = async () => {
 
 	const list = [];
 	for ( live of lives ) {
+		if ( recommandBlackList.includes(live.author.id) ) {
+			continue;
+		}
+
 		if ( live.title.includes("팅") === false ) {
 			list.push({
 				title: live.title,

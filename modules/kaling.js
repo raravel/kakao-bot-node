@@ -1,4 +1,4 @@
-const kakao = require('../node-kakao');
+const kakao = require('node-kakao');
 
 const L = (link) => {
 	return {
