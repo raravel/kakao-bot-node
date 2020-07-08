@@ -10,7 +10,7 @@ const consola = require('consola');
 
 // custom modules
 const Kaling = require('./modules/kaling.js');
-const kakao = require('node-kakao');
+const kakao = require('@storycraft/node-kakao');
 const M = require('./modules/common.js');
 const dnsPromise = dns.promises;
 const searchIndent = require('./modules/indent.js');
@@ -19,12 +19,14 @@ require('./modules/polling.js');
 
 
 // global defins
-const client = new kakao.TalkClient('youn');
-const Long = BSON.Long;
 const config = require('./config.json');
+const Long = BSON.Long;
 const commandList = require('./modules/cmd.js');
+consola.info('Device UUID', config.duuid);
+let client = null;
 
 consola.info('설정 파일을 읽습니다.');
+
 
 const checkInValidLink = async (text) => {
 	const urls = config["accept-url"];
@@ -84,11 +86,59 @@ const psleep = (time) => {
     });
 }
 
+const kakaoLogin = (email, passwd, deviceUUID, name) => {
+	return new Promise(async (resolve, rejct) => {
+		let res = null;
+		client = new kakao.TalkClient(name, deviceUUID)
+
+		try {
+			res = await client.login(email, passwd, deviceUUID, true);
+			return resolve(res);
+		} catch(err) {
+			consola.error('로그인 실패!');
+			if ( err.status === kakao.KakaoAPI.RequestStatusCode.DEVICE_NOT_REGISTERED ) {
+				consola.info('등록되지 않은 디바이스입니다. 등록을 시도합니다.');
+			}
+		}
+
+		try {
+			res = await kakao.KakaoAPI.requestPasscode(email, passwd, deviceUUID, name);
+			res = JSON.parse(res);
+		} catch(err) {
+			consola.error(err);
+			res = await kakaoLogin(email, passwd, deviceUUID, name);
+			return resolve(res);
+		}
+
+		if ( res.status === 0 ) {
+			consola.success(res);
+			const readline = require('readline');
+			const rl = readline.createInterface({
+				input: process.stdin,
+				output: process.stdout,
+			});
+
+			rl.question('Input passcode:', async (answer) => {
+				console.log("Try register device: ", answer);
+				try {
+					res = await kakao.KakaoAPI.registerDevice(answer, email, passwd, deviceUUID, name);
+					res = JSON.parse(res);
+					consola.success(res);
+				} catch(err) {
+					consola.error(res);
+				}
+				return resolve(await kakaoLogin(email, passwd, deviceUUID, name));
+			});
+		}
+	});
+}
+
 (async () => {
-	const res = await client.login(config.email, config.passwd, config.duuid, true);
+	const res = await kakaoLogin(config.email, config.passwd, config.duuid, config.name);
 
-    consola.success(`${client.accessData.displayAccountId}(${client.clientUser.id.toNumber()}) 로 로그인하였습니다.`);
+	consola.success(`${client.accessData.displayAccountId}(${client.clientUser.id.toNumber()}) 로 로그인하였습니다.`);
 
+	global.logon = true;
 	global.channels = [];
 	global.rooms = [];
 
@@ -100,7 +150,7 @@ const psleep = (time) => {
 		for ( channelId of global.channels ) {
 			const longId = new Long(channelId.low, channelId.high);
 			
-			const channel = client.channelManager.cacheMap.get(longId.toString());
+			const channel = client.channelManager.map.get(longId.toString());
 			global.rooms.push(channel);
 
             console.info(`채널 (${longId.toNumber()}) 정보를 읽었습니다.`);
@@ -125,8 +175,8 @@ const psleep = (time) => {
                     global.rooms.push(chat.channel);
                     try {  
                         fs.writeFileSync('channels.db', JSON.stringify(global.channels, null, '\t'), { encoding: 'utf8' });
-                        chat.channel.sendText(`[${chat.channel.channelInfo.name}](${chat.channel.id.toNumber()}) 을(를) 등록했습니다.`);
-                        consola.success(`[${chat.channel.channelInfo.name}](${chat.channel.id.toNumber()}) 을(를) 등록했습니다.`);
+                        chat.channel.sendText(`[${chat.channel.openLink.linkStruct.linkName}](${chat.channel.id.toNumber()}) 을(를) 등록했습니다.`);
+                        consola.success(`[${chat.channel.openLink.linkStruct.linkName}](${chat.channel.id.toNumber()}) 을(를) 등록했습니다.`);
                         return;
                     } catch(err) {
                         chat.channel.sendText(`방 등록에 실패했습니다. ${err.message}`);
@@ -153,8 +203,8 @@ const psleep = (time) => {
                     global.rooms.splice(ridx, 1);
 
                     fs.writeFileSync('channels.db', JSON.stringify(global.channels, null, '\t'), { encoding: 'utf8' });
-                    chat.channel.sendText(`방 ${chat.channel.channelInfo.name} (${chat.channel.id}) 를 정상 해지했습니다.`);
-                    consola.success(`방 ${chat.channel.channelInfo.name} (${chat.channel.id}) 를 정상 해지했습니다.`);
+                    chat.channel.sendText(`방 ${chat.channel.openLink.linkStruct.linkName} (${chat.channel.id}) 를 정상 해지했습니다.`);
+                    consola.success(`방 ${chat.channel.openLink.linkStruct.linkName} (${chat.channel.id}) 를 정상 해지했습니다.`);
                 })
         }
 
@@ -256,18 +306,19 @@ const psleep = (time) => {
         }
 	});
 
-    client.on('feed', (chat, feed) => {
+    client.on('feed', (chat) => {
 		if ( !M.isAcceptCheannel(chat.channel) ) {
 			return;
 		}
 
+		const feed = chat.getFeed();
         if ( feed.feedType === kakao.FeedType.OPENLINK_JOIN ) {
             client.emit('join', chat.channel, feed.members[0])
         }
     });
 
 	client.on('join', (channel, user) => {
-        consola.info(`${channel.channelInfo.name} (${channel.id.toNumber()}) 에 ${user.nickName} (${user.userId.toNumber()}) 님이 입장했습니다.`);
+        consola.info(`${channel.openLink.linkStruct.linkName} (${channel.id.toNumber()}) 에 ${user.nickName} (${user.userId.toNumber()}) 님이 입장했습니다.`);
 
 		const attachment = Kaling({
 			type: kakao.CustomType.FEED,

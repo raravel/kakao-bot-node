@@ -1,6 +1,6 @@
 const M = require('./common.js');
 const axios = require('axios');
-const kakao = require('node-kakao');
+const kakao = require('@storycraft/node-kakao');
 const Kaling = require('./kaling.js');
 
 const recommandBlackList = [
@@ -67,6 +67,10 @@ global.poll = {
 	},
 };
 global.interval = setInterval(async () => {
+
+	if ( !global.logon ) {
+		return;
+	}
 
 	global.poll.sec += 1;
 	if ( global.poll.sec > 0 && global.poll.sec%60 === 0 ) {

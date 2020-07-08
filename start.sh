@@ -9,3 +9,5 @@ mkdir $LOGP > /dev/null 2>&1
 
 cd $P
 forever -p '/home/youn/proj/node/kakao/pc-bot/' -l "${LOGP}$LOGF" start "index.js"
+sleep 3
+forever list
