@@ -149,7 +149,7 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 
 		for ( channelId of global.channels ) {
 			const longId = new Long(channelId.low, channelId.high);
-			
+
 			const channel = client.channelManager.map.get(longId.toString());
 			global.rooms.push(channel);
 
@@ -173,7 +173,7 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 
                     global.channels.push(chat.channel.id);
                     global.rooms.push(chat.channel);
-                    try {  
+                    try {
                         fs.writeFileSync('channels.db', JSON.stringify(global.channels, null, '\t'), { encoding: 'utf8' });
                         chat.channel.sendText(`[${chat.channel.openLink.linkStruct.linkName}](${chat.channel.id.toNumber()}) 을(를) 등록했습니다.`);
                         consola.success(`[${chat.channel.openLink.linkStruct.linkName}](${chat.channel.id.toNumber()}) 을(를) 등록했습니다.`);

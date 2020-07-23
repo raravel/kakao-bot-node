@@ -5,6 +5,7 @@ const Kaling = require('./kaling.js');
 
 const recommandBlackList = [
 	4113440, // 박룰루
+	1249214, // 사랑해 여왕
 ];
 
 const createRecommandLives = async () => {

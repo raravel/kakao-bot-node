@@ -9,6 +9,7 @@
     "node-forge": "^0.9.1",
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
+    "sopia-core": "^1.2.2",
     "uuid": "^8.2.0"
   }
 }
