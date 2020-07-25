@@ -1,6 +1,10 @@
 const kakao = require('@storycraft/node-kakao');
 
 const L = (link) => {
+	if ( typeof link === 'object' ) {
+		return link;
+	}
+
 	return {
 		'LPC': link,
 		'LMO': link,

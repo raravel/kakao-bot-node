@@ -22,7 +22,13 @@ const createRecommandLives = async () => {
 			list.push({
 				title: live.title,
 				desc: `${live.author.nickname.trim()} | 👤 ${live.member_count} ❤ ${live.like_count}`,
-				link: `https://www.spooncast.net/kr/live/${live.id}`,
+				//link: `https://www.spooncast.net/kr/live/${live.id}`,
+				link: {
+					'LPC': `https://www.spooncast.net/kr/live/${live.id}`,
+					'LMO': `https://www.spooncast.net/kr/live/${live.id}`,
+					'LCA': `spooncast://?live_id=${live.id}`,
+					'LCI': `spooncast://?live_id=${live.id}`,
+				},
 				thumb: {
 					url: live.img_url,
 					style: kakao.CustomImageCropStyle.ORIGINAL,
