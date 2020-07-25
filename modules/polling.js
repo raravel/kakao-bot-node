@@ -2,44 +2,65 @@ const M = require('./common.js');
 const axios = require('axios');
 const kakao = require('@storycraft/node-kakao');
 const Kaling = require('./kaling.js');
+const consola = require('consola');
 
 const recommandBlackList = [
 	4113440, // 박룰루
 	1249214, // 사랑해 여왕
 ];
 
+const rand = (num=0, min=0) => Math.floor(Math.random() * (num)) + min;
+
+const getAllPopularLive = async () => {
+	let list = [];
+	let reqUrl = 'https://kr-api.spooncast.net/lives/popular/?page_size=12&is_adult=0';
+	do {
+		const res = await axios.get(reqUrl);
+
+		for ( live of res.data.results ) {
+			if (
+				recommandBlackList.includes(live.author.id) ||
+				!!live.title.match(/팅|리럽|홍방|홍보/) === true
+			) {
+				continue;
+			}
+			list.push(live);
+		}
+
+		reqUrl = res.data.next;
+	} while ( reqUrl );
+
+	consola.info(`${list.length} 개의 방송 목록을 가져왔습니다.`);
+
+	return list;
+};
+
 const createRecommandLives = async () => {
-	const livesRes = await axios.get('https://kr-api.spooncast.net/lives/discovered/');
-	const lives = livesRes.data.results;
+	const lives = await getAllPopularLive();
+	const MAX_LIVE_RECOMMAND = 5;
 
 	const list = [];
-	for ( live of lives ) {
-		if ( recommandBlackList.includes(live.author.id) ) {
-			continue;
-		}
+	for ( let i=0;i < MAX_LIVE_RECOMMAND;i++ ) {
+		const idx = rand(lives.length);
+		const live = lives.splice(idx, 1)[0];
 
-		if ( live.title.includes("팅") === false ) {
-			list.push({
-				title: live.title,
-				desc: `${live.author.nickname.trim()} | 👤 ${live.member_count} ❤ ${live.like_count}`,
-				//link: `https://www.spooncast.net/kr/live/${live.id}`,
-				link: {
-					'LPC': `https://www.spooncast.net/kr/live/${live.id}`,
-					'LMO': `https://www.spooncast.net/kr/live/${live.id}`,
-					'LCA': `spooncast://?live_id=${live.id}`,
-					'LCI': `spooncast://?live_id=${live.id}`,
-				},
-				thumb: {
-					url: live.img_url,
-					style: kakao.CustomImageCropStyle.ORIGINAL,
-				},
-			});
-
-			if ( list.length >= 5 ) {
-				break;
-			}
-		}
+		list.push({
+			title: live.title,
+			desc: `${live.author.nickname.trim()} | 👤 ${live.member_count} ❤ ${live.like_count}`,
+			//link: `https://www.spooncast.net/kr/live/${live.id}`,
+			link: {
+				'LPC': `https://www.spooncast.net/kr/live/${live.id}`,
+				'LMO': `https://www.spooncast.net/kr/live/${live.id}`,
+				'LCA': `spooncast://?live_id=${live.id}`,
+				'LCI': `spooncast://?live_id=${live.id}`,
+			},
+			thumb: {
+				url: live.img_url,
+				style: kakao.CustomImageCropStyle.ORIGINAL,
+			},
+		});
 	}
+
 	const attachment = Kaling({
 		type: kakao.CustomType.LIST,
 		header: {
