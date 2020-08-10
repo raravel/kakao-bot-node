@@ -10,3 +10,4 @@ node-kakao
 config.json
 test
 .logs
+yarn.lock

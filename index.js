@@ -7,6 +7,7 @@ const dns = require('dns');
 const axios = require('axios');
 const BSON = require('bson');
 const consola = require('consola');
+const nodemailer = require('nodemailer');
 
 // custom modules
 const Kaling = require('./modules/kaling.js');
@@ -18,6 +19,7 @@ const searchAnswer = require('./modules/answer.js');
 require('./modules/polling.js');
 
 
+
 // global defins
 const config = require('./config.json');
 const Long = BSON.Long;
@@ -27,6 +29,36 @@ let client = null;
 
 consola.info('설정 파일을 읽습니다.');
 
+
+const sendGmail = (param) => {
+	const transOption = {
+        service: 'gmail',
+        port: 587,
+        host: 'smtp.gmail.com',
+        secure: false,
+        requireTLS: true,
+        auth: {
+            user: config.gmail.mail,
+            pass: config.gmail.passwd,
+        },
+    };
+    const transporter = nodemailer.createTransport(transOption);
+
+    const mailOption = {
+        from: config.gmail.mail,
+        to: param.toEmail,
+        subject: param.title,
+        html: param.content,
+    };
+
+    transporter.sendMail(mailOption, (err, info) => {
+        if ( err ) {
+            console.error(err);
+        } else {
+            console.success('Email sent: ' + info.response);
+        }
+    });
+};
 
 const checkInValidLink = async (text) => {
 	const urls = config["accept-url"];
@@ -210,6 +242,20 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 
 		if ( !M.isAcceptCheannel(chat.channel) ) {
 			return;
+		}
+
+		if ( chat.mentionMap.size > 0 ) {
+			for ( let [id, mention] of chat.mentionMap ) {
+				M.isAdmin(null, mention.UserId)
+					.then(() => {
+						chat.channel.sendText('관리자에게 연락을 보냅니다.');
+						sendGmail({
+							toEmail: config['admin-email'],
+							title: `[${chat.channel.openLink.linkStruct.linkName}] 에서 호출하였습니다.`,
+							content: '튀어 가십쇼',
+						});
+					});
+			}
 		}
 
 		let invalidUrl = await checkInValidLink(chat.text);

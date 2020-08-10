@@ -1,9 +1,10 @@
-exports.isAdmin = (chat) => {
+exports.isAdmin = (chat, sender) => {
 	// unguis1@naver.com
 	//const adminId = { low: -1000804380, high: 28493638, unsigned: false };
 	//{ low: -2074546204, high: 24875177, unsigned: false }
 	const adminId = [ 122379246648225760, 106838073917632480 ];
-	const senderId = chat.sender.id;
+
+	const senderId = sender || chat.sender.id;
 
 	return new Promise((resolve, reject) => {
 
