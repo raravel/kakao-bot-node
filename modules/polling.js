@@ -10,6 +10,7 @@ const recommandBlackList = [
 ];
 
 const rand = (num=0, min=0) => Math.floor(Math.random() * (num)) + min;
+const MAX_LIVE_NUM = 300;
 
 const getAllPopularLive = async () => {
 	let list = [];
@@ -25,12 +26,14 @@ const getAllPopularLive = async () => {
 				continue;
 			}
 			list.push(live);
+
+			if ( list.length >= MAX_LIVE_NUM ) {
+				break;
+			}
 		}
 
 		reqUrl = res.data.next;
-	} while ( reqUrl );
-
-	consola.info(`${list.length} 개의 방송 목록을 가져왔습니다.`);
+	} while ( reqUrl && list.length < MAX_LIVE_NUM );
 
 	return list;
 };
