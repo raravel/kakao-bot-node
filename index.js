@@ -237,7 +237,12 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
                     fs.writeFileSync('channels.db', JSON.stringify(global.channels, null, '\t'), { encoding: 'utf8' });
                     chat.channel.sendText(`방 ${chat.channel.openLink.linkStruct.linkName} (${chat.channel.id}) 를 정상 해지했습니다.`);
                     consola.success(`방 ${chat.channel.openLink.linkStruct.linkName} (${chat.channel.id}) 를 정상 해지했습니다.`);
-                })
+                });
+        } else if ( chat.text === "!공지" ) {
+			const notice = chat.text.split(' ')[1];
+			config.notice.id = notice;
+			fs.writeFileSync('config.json', JSON.stringify(config, null, '\t'), { encoding: 'utf8' });
+			return;
         }
 
 		if ( !M.isAcceptCheannel(chat.channel) ) {
@@ -359,7 +364,7 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 
 		const feed = chat.getFeed();
         if ( feed.feedType === kakao.FeedType.OPENLINK_JOIN ) {
-            client.emit('join', chat.channel, feed.members[0])
+            client.emit('join', chat.channel, feed.members[0]);
         }
     });
 
@@ -374,14 +379,14 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 			buttonStyle: kakao.CustomButtonStyle.VERTICAL,
 			buttons: [
 				{
+					title: '공지 확인하기',
+					dpType: kakao.CustomButtonDisplayType.ALL,
+					link: `kakaomoim://post?referer=b&chat_id=${config.notice.room}&post_id=${config.notice.id}`,
+				},
+				{
 					title: '홈페이지 방문하기',
 					dpType: kakao.CustomButtonDisplayType.ALL,
 					link: 'https://sopia-bot.github.io/',
-				},
-				{
-					title: '릴리즈 노트 확인하기',
-					dpType: kakao.CustomButtonDisplayType.ALL,
-					link: 'https://sopia-bot.github.io/release/',
 				},
 				{
 					title: '개발자 블로그',
