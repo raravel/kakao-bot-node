@@ -64,7 +64,7 @@ const checkInValidLink = async (text) => {
 	const urls = config["accept-url"];
 
 	//const textUrls = text.match(/http(s*):\/\/[\w|-]\.[\w|\.|-]+/gi);
-	const textUrls = text.match(/([a-z]|[0-9]|-)+\.([a-z]|[0-9]|\.)+/gi);
+	const textUrls = text.match(/([a-z0-9_-])+\.([a-z0-9_-]|\.)+/gi);
 	if ( textUrls ) {
 		for ( turl of textUrls ) {
 			const ipMatch = turl.match(/([0-9]|\.)+/g);
