@@ -2,28 +2,27 @@ exports.isAdmin = (chat, sender) => {
 	// unguis1@naver.com
 	//const adminId = { low: -1000804380, high: 28493638, unsigned: false };
 	//{ low: -2074546204, high: 24875177, unsigned: false }
-	const adminId = [ 122379246648225764, 106838073917632484 ];
+	const adminId = [ '122379246648225764', '106838073917632484' ];
 
 	const senderId = sender || chat.sender.id;
 
 	return new Promise((resolve, reject) => {
+		if ( adminId.includes(senderId.toString()) ) {
+			resolve();
+			return;
+		}
 
-	if ( adminId.includes(senderId.toString()) ) {
-		resolve();
-		return;
-	}
-
-	let roomAdminId = {};
-	chat.channel.client.openChatManager.getLinkOwner(chat.channel.linkId)
-		.then(chatUser => {
-			roomAdminId = chatUser.id;
-			if (roomAdminId.toString() === senderId.toString() ) {
-				resolve();
-			} else {
-				reject(new Error('not match admin id'));
-			}
-		})
-		.catch(reject);
+		let roomAdminId = {};
+		chat.channel.client.openChatManager.getLinkOwner(chat.channel.linkId)
+			.then(chatUser => {
+				roomAdminId = chatUser.id;
+				if (roomAdminId.toString() === senderId.toString() ) {
+					resolve();
+				} else {
+					reject(new Error('not match admin id'));
+				}
+			})
+			.catch(reject);
 	});
 }
 
