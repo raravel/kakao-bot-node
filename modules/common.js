@@ -2,13 +2,13 @@ exports.isAdmin = (chat, sender) => {
 	// unguis1@naver.com
 	//const adminId = { low: -1000804380, high: 28493638, unsigned: false };
 	//{ low: -2074546204, high: 24875177, unsigned: false }
-	const adminId = [ 122379246648225760, 106838073917632480 ];
+	const adminId = [ 122379246648225764, 106838073917632484 ];
 
 	const senderId = sender || chat.sender.id;
 
 	return new Promise((resolve, reject) => {
 
-	if ( adminId.includes(senderId.toNumber()) ) {
+	if ( adminId.includes(senderId.toString()) ) {
 		resolve();
 		return;
 	}
@@ -17,7 +17,7 @@ exports.isAdmin = (chat, sender) => {
 	chat.channel.client.openChatManager.getLinkOwner(chat.channel.linkId)
 		.then(chatUser => {
 			roomAdminId = chatUser.id;
-			if (roomAdminId.toNumber() === senderId.toNumber() ) {
+			if (roomAdminId.toString() === senderId.toString() ) {
 				resolve();
 			} else {
 				reject(new Error('not match admin id'));
@@ -98,7 +98,7 @@ exports.sendToChannel = (channel, msg) => {
 	}
 
 	for ( ch of global.rooms ) {
-		if ( ch.id.toNumber() === channel.id.toNumber() ) {
+		if ( ch.id.toString() === channel.id.toString() ) {
 			channel[sender](msg);
 			return;
 		}
@@ -107,7 +107,7 @@ exports.sendToChannel = (channel, msg) => {
 
 exports.isAcceptCheannel = (channel) => {
 	for ( ch of global.rooms ) {
-		if ( ch.id.toNumber() === channel.id.toNumber() ) {
+		if ( ch.id.toString() === channel.id.toString() ) {
 			return true;
 		}
 	}

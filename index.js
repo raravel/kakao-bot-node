@@ -168,7 +168,7 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 (async () => {
 	const res = await kakaoLogin(config.email, config.passwd, config.duuid, config.name);
 
-	consola.success(`${client.accessData.displayAccountId}(${client.clientUser.id.toNumber()}) 로 로그인하였습니다.`);
+	consola.success(`${client.accessData.displayAccountId}(${client.clientUser.id.toString()}) 로 로그인하였습니다.`);
 
 	global.logon = true;
 	global.channels = [];
@@ -185,7 +185,7 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 			const channel = client.channelManager.map.get(longId.toString());
 			global.rooms.push(channel);
 
-            console.info(`채널 (${longId.toNumber()}) 정보를 읽었습니다.`);
+			console.info(`채널 (${longId.toString()}) 정보를 읽었습니다.`);
 		}
         consola.success('채널 데이터 정보를 읽는데 성공했습니다.');
 	}
@@ -196,7 +196,7 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
         if ( chat.text === "!등록" ) {
             M.isAdmin(chat)
                 .then(() => {
-                    const idx = global.channels.findIndex(c => new Long(c.low, c.high).toNumber() === chat.channel.id.toNumber());
+                    const idx = global.channels.findIndex(c => new Long(c.low, c.high).toString() === chat.channel.id.toString());
                     if ( idx >= 0 ) {
                         chat.channel.sendText("이미 등록된 방입니다.");
                         consola.info('이미 등록된 방입니다.');
@@ -207,8 +207,8 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
                     global.rooms.push(chat.channel);
                     try {
                         fs.writeFileSync('channels.db', JSON.stringify(global.channels, null, '\t'), { encoding: 'utf8' });
-                        chat.channel.sendText(`[${chat.channel.openLink.linkStruct.linkName}](${chat.channel.id.toNumber()}) 을(를) 등록했습니다.`);
-                        consola.success(`[${chat.channel.openLink.linkStruct.linkName}](${chat.channel.id.toNumber()}) 을(를) 등록했습니다.`);
+                        chat.channel.sendText(`[${chat.channel.openLink.linkStruct.linkName}](${chat.channel.id.toString()}) 을(를) 등록했습니다.`);
+                        consola.success(`[${chat.channel.openLink.linkStruct.linkName}](${chat.channel.id.toString()}) 을(를) 등록했습니다.`);
                         return;
                     } catch(err) {
                         chat.channel.sendText(`방 등록에 실패했습니다. ${err.message}`);
@@ -222,7 +222,7 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
         } else if ( chat.text === "!해제" ) {
             M.isAdmin(chat)
                 .then(() => {
-                    const idx = global.channels.findIndex(c => new Long(c.low, c.high).toNumber() === chat.channel.id.toNumber());
+                    const idx = global.channels.findIndex(c => new Long(c.low, c.high).toString() === chat.channel.id.toString());
                     if ( idx < 0 ) {
                         chat.channel.sendText("등록되지 않은 방입니다.");
                         consola.info('등록되지 않은 방입니다.');
@@ -231,7 +231,7 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 
                     global.channels.splice(idx, 1);
 
-                    const ridx = global.rooms.findIndex(r => r.id.toNumber() === chat.channel.id.toNumber());
+                    const ridx = global.rooms.findIndex(r => r.id.toString() === chat.channel.id.toString());
                     global.rooms.splice(ridx, 1);
 
                     fs.writeFileSync('channels.db', JSON.stringify(global.channels, null, '\t'), { encoding: 'utf8' });
@@ -370,7 +370,7 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
     });
 
 	client.on('join', (channel, user) => {
-        consola.info(`${channel.openLink.linkStruct.linkName} (${channel.id.toNumber()}) 에 ${user.nickName} (${user.userId.toNumber()}) 님이 입장했습니다.`);
+        consola.info(`${channel.openLink.linkStruct.linkName} (${channel.id.toString()}) 에 ${user.nickName} (${user.userId.toString()}) 님이 입장했습니다.`);
 
 		const attachment = Kaling({
 			type: kakao.CustomType.FEED,
