@@ -282,8 +282,9 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 				}
 			}
 
-			chat.channel.sendText(`${chat.sender.nickname}님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.\n\n${hideUrl}`);
-            consola.log(`${chat.sender.nickname}님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.`);
+			const sender = chat.channel.userInfoMap.get(chat.sender.id.toString()).memberStruct;
+			chat.channel.sendText(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.\n\n${hideUrl}`);
+            consola.log(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.`);
             consola.log(`${chat.text}\n\n`);
 			result = await chat.channel.hideChat(chat);
 			if ( result ) {
