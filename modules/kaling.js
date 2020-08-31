@@ -13,7 +13,7 @@ const L = (link) => {
 	}
 };
 
-const createKaling = (options) => {
+const createKaling = (options, json = false) => {
 	const kaling = new kakao.CustomAttachment();
 
 
@@ -169,6 +169,9 @@ const createKaling = (options) => {
 		};
 	}
 
+	if ( json ) {
+		return data;
+	}
 
 	kaling.readAttachment(data);
 	return new kakao.AttachmentTemplate(kaling);
