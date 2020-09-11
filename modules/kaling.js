@@ -6,8 +6,8 @@ const L = (link) => {
 	}
 
 	return {
-		'LPC': link,
-		'LMO': link,
+		'LCP': link,
+		'LCM': link,
 		'LCA': link,
 		'LCI': link,
 	}
