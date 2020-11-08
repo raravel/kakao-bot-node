@@ -11,3 +11,4 @@ config.json
 test
 .logs
 yarn.lock
+yarn-error.log
