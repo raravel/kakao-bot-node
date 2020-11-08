@@ -121,7 +121,7 @@ global.interval = setInterval(async () => {
 
 	const { sec, min, hour, day } = global.poll;
 
-	if ( global.poll.checker('hour', 1) ) {
+	if ( global.poll.checker('hour', 3) ) {
 		const crlTemplate = await createRecommandLives();
 		M.sendToAllChannels(crlTemplate);
         consola.success('등록된 모든 방에, 방송 추천을 전송했습니다.');
