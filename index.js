@@ -2,6 +2,7 @@
 const fs = require('fs');
 const crypto = require('crypto');
 const dns = require('dns');
+const vm = require('vm');
 
 // package modules
 const axios = require('axios');
@@ -60,6 +61,24 @@ const sendGmail = (param) => {
     });
 };
 
+const jsSyntax = (code) => {
+	try {
+		vm.createScript(code);
+		return { result: true };
+	} catch(err) {
+		const sp = err.stack.split('\n');
+		const line = sp[0].split(':')[1];
+		const syntax = `${sp[1]}\n${sp[2]}`;
+		return {
+			result: false,
+			msg: err.message,
+			syntax,
+			line,
+			stack: err.stack,
+		};
+	}
+};
+
 const checkInValidLink = async (text) => {
 	const urls = config["accept-url"];
 
@@ -97,10 +116,16 @@ const checkInValidLink = async (text) => {
 				}
 
 				if ( !flag ) {
-                    consola.error('허용되지 않은 Url 입니다.');
-					return turl;
+					const res = jsSyntax(text);
+					if ( res.result ) {
+						consola.success('정상적인 자바스크립트 코드입니다.');
+					} else {
+						consola.error('허용되지 않은 Url 입니다.');
+						return turl;
+					}
 				}
-			} catch {
+			} catch(err) {
+				consola.error(err);
                 consola.info('DNS Fail.');
 			}
 
