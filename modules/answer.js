@@ -80,7 +80,8 @@ const answerList = [
 		"sub-answer": [
 			{
 				"key": "change",
-				"answer": "CODE 탭을 누른 후 왼쪽에 보이는 트리에서, storages 폴더 안 파일들을 수정하시면 됩니다.\n자세한 내용은 블로그 참고 부탁드리요.\n\nhttps://ifthe1201.blog.me/221810647597",
+				"answer": "CODE 탭을 누른 후 왼쪽에 보이는 트리에서, storages 폴더 안 파일들을 수정하시면 됩니다.\n자세한 내용은 블로그 참고 부탁드리요.\n\nhttps://ifthe1201.blog.me/221810647597\n\n" +
+				"한 줄 추가하는 코드마저 어려운 당신을 위한 번들이 존재합니다.\nhttps://sopia-bot.github.io/docs/bundle/ez-cmd/",
 			},
 		],
 	}, // event
