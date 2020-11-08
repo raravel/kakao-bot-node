@@ -1,16 +1,28 @@
 {
-  "dependencies": {
-    "@storycraft/node-kakao": "^3.0.3",
-    "axios": "^0.19.2",
-    "bson": "^4.0.4",
-    "consola": "^2.14.0",
-    "json-proxy-mapper": "^1.1.2",
-    "lossless-json": "^1.0.4",
-    "node-forge": "^0.9.1",
-    "nodemailer": "^6.4.11",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.5",
-    "sopia-core": "^1.2.2",
-    "uuid": "^8.2.0"
-  }
+	"name": "kakao-bot-node",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "MIT",
+	"dependencies": {
+		"@storycraft/node-kakao": "^3.0.3",
+		"axios": "^0.19.2",
+		"bson": "^4.0.4",
+		"consola": "^2.14.0",
+		"forever": "^3.0.2",
+		"global": "^4.4.0",
+		"json-proxy-mapper": "^1.1.2",
+		"lossless-json": "^1.0.4",
+		"node-forge": "^0.9.1",
+		"nodemailer": "^6.4.11",
+		"request": "^2.88.2",
+		"request-promise": "^4.2.5",
+		"sopia-core": "^1.2.2",
+		"uuid": "^8.2.0"
+	}
 }
