@@ -1,6 +1,6 @@
 const M = require('./common.js');
 const axios = require('axios');
-const kakao = require('@storycraft/node-kakao');
+const kakao = require('node-kakao');
 const Kaling = require('./kaling.js');
 const consola = require('consola');
 

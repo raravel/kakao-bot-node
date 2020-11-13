@@ -10,7 +10,6 @@
 	"author": "",
 	"license": "MIT",
 	"dependencies": {
-		"@storycraft/node-kakao": "^3.0.3",
 		"axios": "^0.19.2",
 		"bson": "^4.0.4",
 		"consola": "^2.14.0",
@@ -19,6 +18,7 @@
 		"json-proxy-mapper": "^1.1.2",
 		"lossless-json": "^1.0.4",
 		"node-forge": "^0.9.1",
+		"node-kakao": "^3.1.2",
 		"nodemailer": "^6.4.11",
 		"request": "^2.88.2",
 		"request-promise": "^4.2.5",

@@ -1,4 +1,4 @@
-const kakao = require('@storycraft/node-kakao');
+const kakao = require('node-kakao');
 
 const L = (link) => {
 	if ( typeof link === 'object' ) {

@@ -12,7 +12,7 @@ const nodemailer = require('nodemailer');
 
 // custom modules
 const Kaling = require('./modules/kaling.js');
-const kakao = require('@storycraft/node-kakao');
+const kakao = require('node-kakao');
 const M = require('./modules/common.js');
 const dnsPromise = dns.promises;
 const searchIndent = require('./modules/indent.js');
@@ -115,7 +115,7 @@ const checkInValidLink = async (text) => {
 					}
 				}
 
-				if ( !flag ) {
+				if ( !flag && text.length >= 20 ) {
 					const res = jsSyntax(text);
 					if ( res.result ) {
 						consola.success('정상적인 자바스크립트 코드입니다.');
@@ -149,7 +149,7 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 		client = new kakao.TalkClient(name, deviceUUID)
 
 		try {
-			res = await client.login(email, passwd, deviceUUID, true);
+			res = await client.login(email, passwd);
 			return resolve(res);
 		} catch(err) {
 			consola.error('로그인 실패!');
@@ -163,7 +163,7 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 			res = JSON.parse(res);
 		} catch(err) {
 			consola.error(err);
-			res = await kakaoLogin(email, passwd, deviceUUID, name);
+			res = await kakaoLogin(email, passwd, name);
 			return resolve(res);
 		}
 
@@ -193,7 +193,7 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 (async () => {
 	const res = await kakaoLogin(config.email, config.passwd, config.duuid, config.name);
 
-	consola.success(`${client.accessData.displayAccountId}(${client.clientUser.id.toString()}) 로 로그인하였습니다.`);
+	consola.success(`${client.clientUser.mainUserInfo.settings.nickName}(${client.clientUser.id.toString()}) 로 로그인하였습니다.`);
 
 	global.logon = true;
 	global.channels = [];
@@ -273,6 +273,11 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 		if ( !M.isAcceptCheannel(chat.channel) ) {
 			return;
 		}
+
+		const senderInfo = chat.Channel.getUserInfo(chat.Sender);
+		const senderStruct = senderInfo.memberStruct;
+
+		console.log(`${senderStruct.nickname}(${senderInfo.user.id.toString()}): ${chat.text}`);
 
 		if ( chat.mentionMap.size > 0 ) {
 			for ( let [id, mention] of chat.mentionMap ) {
