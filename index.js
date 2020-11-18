@@ -294,6 +294,13 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 		}
 
 		let invalidUrl = await checkInValidLink(chat.text);
+		if ( !invalidUrl ) {
+			if ( chat instanceof kakao.CustomChat ) {
+				if ( client.clientUser.id.toString() !== senderInfo.user.id.toString() ) {
+					invalidUrl = true;
+				}
+			}
+		}
 		if ( invalidUrl ) {
 			const invalidUrlLen = invalidUrl.length;
 			const hideLen = Math.ceil(invalidUrlLen * 0.4);
