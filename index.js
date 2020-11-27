@@ -319,28 +319,32 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 				}
 			}
 
-			const sender = chat.channel.userInfoMap.get(chat.sender.id.toString()).memberStruct;
-			chat.channel.sendText(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.\n\n${hideUrl}`);
-            consola.log(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.`);
-            consola.log(`${chat.text}\n\n`);
-			result = await chat.channel.hideChat(chat);
-			if ( result ) {
-				result = await chat.channel.kickMember(chat.sender);
+			try {
+				const sender = chat.channel.userInfoMap.get(chat.sender.id.toString()).memberStruct;
+				chat.channel.sendText(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.\n\n${hideUrl}`);
+				consola.log(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.`);
+				consola.log(`${chat.text}\n\n`);
+				result = await chat.channel.hideChat(chat);
 				if ( result ) {
-					chat.channel.sendText('성공했습니다.');
-				} else {
-					chat.channel.sendText('실패했습니다.\n3회 더 시도합니다.');
+					result = await chat.channel.kickMember(chat.sender);
+					if ( result ) {
+						chat.channel.sendText('성공했습니다.');
+					} else {
+						chat.channel.sendText('실패했습니다.\n3회 더 시도합니다.');
 
-					for ( let i=0;i<3;i++ ) {
-						result = await chat.channel.kickMember(chat.sender);
-						if ( result ) {
-							chat.channel.sendText('성공했습니다.');
-							return;
+						for ( let i=0;i<3;i++ ) {
+							result = await chat.channel.kickMember(chat.sender);
+							if ( result ) {
+								chat.channel.sendText('성공했습니다.');
+								return;
+							}
+							await psleep(1000);
 						}
-                        await psleep(1000);
+						chat.channel.sendText('실패했습니다.');
 					}
-					chat.channel.sendText('실패했습니다.');
 				}
+			} catch(err) {
+				consola.error(err);
 			}
 			return;
 		}
