@@ -118,7 +118,7 @@ module.exports = {
 				let txt = "미리보기를 지원하지 않는 공지입니다.";
 
 				if ( p.type === "text" ) {
-					if ( txt.length >= 50 ) {
+					if ( p.text.length >= 50 ) {
 						txt = p.text.substr(0, 50) + '...';
 					} else {
 						txt = p.text;
