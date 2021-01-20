@@ -19,6 +19,11 @@ const searchIndent = require('./modules/indent.js');
 const searchAnswer = require('./modules/answer.js');
 require('./modules/polling.js');
 
+if ( !fs.existsSync('./chat-stack.json') ) {
+	fs.writeFileSync('./chat-stack.json', '{}', { encoding: 'utf8' });
+}
+global.chatStack = require('./chat-stack.json');
+const CHAT_REQ_NUM = 100;
 
 
 // global defins
@@ -27,9 +32,9 @@ const Long = BSON.Long;
 const commandList = require('./modules/cmd.js');
 consola.info('Device UUID', config.duuid);
 let client = null;
+global.ROOT_DIR = __dirname;
 
 consola.info('설정 파일을 읽습니다.');
-
 
 const sendGmail = (param) => {
 	const transOption = {
@@ -190,6 +195,25 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 	});
 }
 
+const chatRecord = (sender, chat) => {
+	const id = sender.user.id.toString();
+	let record = chatStack[id];
+	/* 채팅 횟수 기록 */
+	if ( record === undefined ) {
+		record = chatStack[id] = {
+			chatCount: 1,
+			name: sender.memberStruct.nickname,
+			lastChatDate: new Date().toString(),
+			firstChatDate: new Date().toString(),
+		};
+	} else {
+		record.chatCount += 1;
+		record.lastChatDate = new Date().toString();
+		record.name = sender.memberStruct.nickname;
+	}
+	return record;
+}
+
 (async () => {
 	const res = await kakaoLogin(config.email, config.passwd, config.duuid, config.name);
 
@@ -276,8 +300,10 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 
 		const senderInfo = chat.Channel.getUserInfo(chat.Sender);
 		const senderStruct = senderInfo.memberStruct;
+		const senderId = senderInfo.user.id.toString();
 
-		console.log(`${senderStruct.nickname}(${senderInfo.user.id.toString()}): ${chat.text}`);
+		const record = chatRecord(senderInfo, chat);
+		console.log(`${senderStruct.nickname}(${senderId}): ${chat.text}`);
 
 		if ( chat.mentionMap.size > 0 ) {
 			for ( let [id, mention] of chat.mentionMap ) {
@@ -293,60 +319,64 @@ const kakaoLogin = (email, passwd, deviceUUID, name) => {
 			}
 		}
 
-		let invalidUrl = await checkInValidLink(chat.text);
-		if ( !invalidUrl ) {
-			if ( chat instanceof kakao.CustomChat ) {
-				if ( client.clientUser.id.toString() !== senderInfo.user.id.toString() ) {
-					invalidUrl = true;
-				}
-			}
-		}
-		if ( invalidUrl ) {
-			const invalidUrlLen = invalidUrl.length;
-			const hideLen = Math.ceil(invalidUrlLen * 0.4);
-			let hideUrl = "";
-			for ( let i=0;i<invalidUrlLen;i++ ) {
-				if ( i < hideLen ) {
-					if ( invalidUrl[i] !== '.' ) {
-						hideUrl += 'x';
-						continue;
+		if ( record.chatCount >= CHAT_REQ_NUM ) {
+			consola.info('채팅이 100회 이상인 유저입니다. 광고 주소 검사를 진행하지 않습니다.');
+		} else {
+			let invalidUrl = await checkInValidLink(chat.text);
+			if ( !invalidUrl ) {
+				if ( chat instanceof kakao.CustomChat ) {
+					if ( client.clientUser.id.toString() !== senderInfo.user.id.toString() ) {
+						invalidUrl = true;
 					}
 				}
-				if ( i < invalidUrlLen - 1 ) {
-					hideUrl += invalidUrl[i];
-				} else {
-					hideUrl += 'x';
-				}
 			}
-
-			try {
-				const sender = chat.channel.userInfoMap.get(chat.sender.id.toString()).memberStruct;
-				chat.channel.sendText(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.\n\n${hideUrl}`);
-				consola.log(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.`);
-				consola.log(`${chat.text}\n\n`);
-				result = await chat.channel.hideChat(chat);
-				if ( result ) {
-					result = await chat.channel.kickMember(chat.sender);
-					if ( result ) {
-						chat.channel.sendText('성공했습니다.');
-					} else {
-						chat.channel.sendText('실패했습니다.\n3회 더 시도합니다.');
-
-						for ( let i=0;i<3;i++ ) {
-							result = await chat.channel.kickMember(chat.sender);
-							if ( result ) {
-								chat.channel.sendText('성공했습니다.');
-								return;
-							}
-							await psleep(1000);
+			if ( invalidUrl ) {
+				const invalidUrlLen = invalidUrl.length;
+				const hideLen = Math.ceil(invalidUrlLen * 0.4);
+				let hideUrl = "";
+				for ( let i=0;i<invalidUrlLen;i++ ) {
+					if ( i < hideLen ) {
+						if ( invalidUrl[i] !== '.' ) {
+							hideUrl += 'x';
+							continue;
 						}
-						chat.channel.sendText('실패했습니다.');
+					}
+					if ( i < invalidUrlLen - 1 ) {
+						hideUrl += invalidUrl[i];
+					} else {
+						hideUrl += 'x';
 					}
 				}
-			} catch(err) {
-				consola.error(err);
+
+				try {
+					const sender = chat.channel.userInfoMap.get(chat.sender.id.toString()).memberStruct;
+					chat.channel.sendText(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.\n\n${hideUrl}`);
+					consola.log(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.`);
+					consola.log(`${chat.text}\n\n`);
+					result = await chat.channel.hideChat(chat);
+					if ( result ) {
+						result = await chat.channel.kickMember(chat.sender);
+						if ( result ) {
+							chat.channel.sendText('성공했습니다.');
+						} else {
+							chat.channel.sendText('실패했습니다.\n3회 더 시도합니다.');
+
+							for ( let i=0;i<3;i++ ) {
+								result = await chat.channel.kickMember(chat.sender);
+								if ( result ) {
+									chat.channel.sendText('성공했습니다.');
+									return;
+								}
+								await psleep(1000);
+							}
+							chat.channel.sendText('실패했습니다.');
+						}
+					}
+				} catch(err) {
+					consola.error(err);
+				}
+				return;
 			}
-			return;
 		}
 
 		if ( M.isCmd(chat) ) {

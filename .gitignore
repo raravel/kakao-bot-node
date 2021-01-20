@@ -12,3 +12,4 @@ test
 .logs
 yarn.lock
 yarn-error.log
+chat-stack.json

@@ -3,6 +3,8 @@ const axios = require('axios');
 const kakao = require('node-kakao');
 const Kaling = require('./kaling.js');
 const consola = require('consola');
+const fs = require('fs');
+const path = require('path');
 
 const recommandBlackList = [
 	4113440, // 박룰루
@@ -125,6 +127,13 @@ global.interval = setInterval(async () => {
 		const crlTemplate = await createRecommandLives();
 		M.sendToAllChannels(crlTemplate);
         consola.success('등록된 모든 방에, 방송 추천을 전송했습니다.');
+	}
+
+	if ( global.poll.checker('min', 1) ) {
+		const str = JSON.stringify(global.chatStack, null, '\t');
+		const file = path.resolve(global.ROOT_DIR, 'chat-stack.json');
+		fs.writeFileSync(file, str, { encoding: 'utf8' });
+		consola.success('채팅 정보를 저장했습니다.');
 	}
 
 }, 1000);
