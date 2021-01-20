@@ -287,10 +287,12 @@ const chatRecord = (sender, chat) => {
                     chat.channel.sendText(`방 ${chat.channel.openLink.linkStruct.linkName} (${chat.channel.id}) 를 정상 해지했습니다.`);
                     consola.success(`방 ${chat.channel.openLink.linkStruct.linkName} (${chat.channel.id}) 를 정상 해지했습니다.`);
                 });
-        } else if ( chat.text === "!공지" ) {
+        } else if ( chat.text.indexOf("!공지") === 0 ) {
 			const notice = chat.text.split(' ')[1];
-			config.notice.id = notice;
+			const chid = chat.channel.Id.toString();
+			config.notice[chid] = notice;
 			fs.writeFileSync('config.json', JSON.stringify(config, null, '\t'), { encoding: 'utf8' });
+			console.log(`공지 채널 ${chid} ID ${notice}를 등록하였습니다.`);
 			return;
         }
 
@@ -383,7 +385,7 @@ const chatRecord = (sender, chat) => {
 			cmd = commandList[chat.cmd];
 			if ( cmd ) {
                 consola.info(`명령어 [${chat.cmd}] 를 실행합니다.`);
-				result = M.runCmd(cmd, chat);
+				result = M.runCmd(cmd, chat, senderInfo, client);
 				if ( result ) {
 					if ( typeof result === "string" ) {
 						chat.channel.sendText(result);
@@ -441,7 +443,8 @@ const chatRecord = (sender, chat) => {
     });
 
 	client.on('join', (channel, user) => {
-        consola.info(`${channel.openLink.linkStruct.linkName} (${channel.id.toString()}) 에 ${user.nickName} (${user.userId.toString()}) 님이 입장했습니다.`);
+		const chid = channel.id.toString();
+        consola.info(`${channel.openLink.linkStruct.linkName} (${chid}) 에 ${user.nickName} (${user.userId.toString()}) 님이 입장했습니다.`);
 
 		const attachment = Kaling({
 			type: kakao.CustomType.FEED,
@@ -453,7 +456,7 @@ const chatRecord = (sender, chat) => {
 				{
 					title: '공지 확인하기',
 					dpType: kakao.CustomButtonDisplayType.ALL,
-					link: `kakaomoim://post?referer=b&chat_id=${config.notice.room}&post_id=${config.notice.id}`,
+					link: `kakaomoim://post?referer=b&chat_id=${chid}&post_id=${config.notice[chid]}`,
 				},
 				{
 					title: '홈페이지 방문하기',

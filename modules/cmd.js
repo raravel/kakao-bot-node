@@ -108,4 +108,31 @@ module.exports = {
 			console.error(search);
 		}
 	},
+	"포스트": async (chat, sender, client) => {
+		const api = await client.openChannelBoard.requestPostList(chat.channel.LinkId, chat.channel.Id);
+		let res = "[공지 목록]";
+		res += "\u200b".repeat(500) + "\n\n\n";
+		if ( Array.isArray(api.posts) ) {
+			api.posts.forEach((post,idx) => {
+				const p = JSON.parse(post.content)[0];
+				let txt = "미리보기를 지원하지 않는 공지입니다.";
+
+				if ( p.type === "text" ) {
+					if ( txt.length >= 50 ) {
+						txt = p.text.substr(0, 50) + '...';
+					} else {
+						txt = p.text;
+					}
+				}
+
+				res += `${idx}. ${new Date(post.created_at).toLocaleString()}에 작성된 포스트\n`;
+				res += `  - ID: ${post.id}\n`;
+				res += `  - 타입: ${post.object_type}\n`;
+				res += `  - 작성자: ${chat.Channel.getUserInfoId(post.owner_id).memberStruct.nickname}\n`;
+				res += `  - 미리보기: ${txt}\n`;
+				res += `\n`;
+			});
+		}
+		return res.trim();
+	},
 };

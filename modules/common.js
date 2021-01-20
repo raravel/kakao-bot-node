@@ -41,14 +41,14 @@ exports.isCmd = (e) => {
 };
 
 
-exports.runCmd = (cmd, e) => {
+exports.runCmd = (cmd, ...e) => {
     let str = "";
     switch ( typeof cmd ) {
         case "string": {
             str = cmd;
         } break;
         case "function": {
-            str = cmd(e);
+            str = cmd(...e);
         } break;
         case "object": {
             if ( Array.isArray(cmd) ) {
@@ -58,7 +58,7 @@ exports.runCmd = (cmd, e) => {
                         str = cmd[result];
                     } break;
                     case "function": {
-                        str = cmd[result](e);
+                        str = cmd[result](...e);
                     }
                 }
             }
