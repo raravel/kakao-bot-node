@@ -305,7 +305,7 @@ const chatRecord = (sender, chat) => {
 		const senderId = senderInfo.user.id.toString();
 
 		const record = chatRecord(senderInfo, chat);
-		console.log(`${senderStruct.nickname}(${senderId}): ${chat.text}`);
+		console.log(`[${chat.LogId}]${senderStruct.nickname}(${senderId}): ${chat.text}`);
 
 		if ( chat.mentionMap.size > 0 ) {
 			for ( let [id, mention] of chat.mentionMap ) {
@@ -355,7 +355,8 @@ const chatRecord = (sender, chat) => {
 					chat.channel.sendText(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.\n\n${hideUrl}`);
 					consola.log(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.`);
 					consola.log(`${chat.text}\n\n`);
-					result = await chat.channel.hideChat(chat);
+					psleep(1000);
+					result = await chat.hide();
 					if ( result ) {
 						result = await chat.channel.kickMember(chat.sender);
 						if ( result ) {
