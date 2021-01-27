@@ -465,6 +465,11 @@ const chatRecord = (sender, chat) => {
 					link: 'https://sopia-bot.github.io/',
 				},
 				{
+					title: '노션 페이지는 여기',
+					dpType: kakao.CustomButtonDisplayType.ALL,
+					link: 'https://www.notion.so/cfddd1655efc4801bfb407dc4af0cd98',
+				},
+				{
 					title: '개발자 블로그',
 					dpType: kakao.CustomButtonDisplayType.ALL,
 					link: 'https://ifthe1201.blog.me/',
