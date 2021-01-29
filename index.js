@@ -22,7 +22,11 @@ require('./modules/polling.js');
 if ( !fs.existsSync('./chat-stack.json') ) {
 	fs.writeFileSync('./chat-stack.json', '{}', { encoding: 'utf8' });
 }
+if ( !fs.existsSync('./hide-stack.json') ) {
+	fs.writeFileSync('./hide-stack.json', '{}', { encoding: 'utf8' });
+}
 global.chatStack = require('./chat-stack.json');
+global.hideStack = require('./hide-stack.json');
 const CHAT_REQ_NUM = 100;
 
 
@@ -128,6 +132,9 @@ const checkInValidLink = async (text) => {
 						consola.error('허용되지 않은 Url 입니다.');
 						return turl;
 					}
+				} else {
+					consola.error('허용되지 않은 Url 입니다.');
+					return turl;
 				}
 			} catch(err) {
 				consola.error(err);
@@ -352,12 +359,25 @@ const chatRecord = (sender, chat) => {
 
 				try {
 					const sender = chat.channel.userInfoMap.get(chat.sender.id.toString()).memberStruct;
+					global.hideStack.unshift({
+						id: chat.LogId.toString(),
+						date: new Date().toJSON(),
+						author: {
+							id: chat.sender.id.toString(),
+							nickname: sender.nickname,
+						},
+						message: chat.text,
+						rm: false,
+					});
+					if ( global.hideStack.length > 30 ) {
+						global.hideStack.pop();
+					}
 					chat.channel.sendText(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.\n\n${hideUrl}`);
 					consola.log(`[${sender.nickname}]님이 전송하신 메시지중에 허가되지 않은 주소가 있습니다.\n가리기 및 강제퇴장을 시도합니다.`);
 					consola.log(`${chat.text}\n\n`);
 					psleep(1000);
-					result = await chat.hide();
-					if ( result ) {
+					//result = await chat.hide();
+					if ( 0 && result ) {
 						result = await chat.channel.kickMember(chat.sender);
 						if ( result ) {
 							chat.channel.sendText('성공했습니다.');

@@ -13,16 +13,20 @@ exports.isAdmin = (chat, sender) => {
 		}
 
 		let roomAdminId = {};
-		chat.channel.client.openChatManager.getLinkOwner(chat.channel.linkId)
-			.then(chatUser => {
-				roomAdminId = chatUser.id;
-				if (roomAdminId.toString() === senderId.toString() ) {
-					resolve();
-				} else {
-					reject(new Error('not match admin id'));
-				}
-			})
-			.catch(reject);
+		if ( chat.channel ) {
+			chat.channel.client.openChatManager.getLinkOwner(chat.channel.linkId)
+				.then(chatUser => {
+					roomAdminId = chatUser.id;
+					if (roomAdminId.toString() === senderId.toString() ) {
+						resolve();
+					} else {
+						reject(new Error('not match admin id'));
+					}
+				})
+				.catch(reject);
+		} else {
+			reject();
+		}
 	});
 }
 

@@ -13,3 +13,4 @@ test
 yarn.lock
 yarn-error.log
 chat-stack.json
+hide-stack.json

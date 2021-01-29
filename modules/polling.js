@@ -14,6 +14,8 @@ const recommandBlackList = [
 const rand = (num=0, min=0) => Math.floor(Math.random() * (num)) + min;
 const MAX_LIVE_NUM = 300;
 
+const JSON2FILE = (json, file) => fs.writeFileSync(file, JSON.stringify(json, null, '\t'), { encoding: 'utf8' });
+
 const getAllPopularLive = async () => {
 	let list = [];
 	let reqUrl = 'https://kr-api.spooncast.net/lives/popular/?page_size=12&is_adult=0';
@@ -130,9 +132,8 @@ global.interval = setInterval(async () => {
 	}
 
 	if ( global.poll.checker('min', 1) ) {
-		const str = JSON.stringify(global.chatStack, null, '\t');
-		const file = path.resolve(global.ROOT_DIR, 'chat-stack.json');
-		fs.writeFileSync(file, str, { encoding: 'utf8' });
+		JSON2FILE(global.chatStack, path.resolve(global.ROOT_DIR, 'chat-stack.json'));
+		JSON2FILE(global.hideStack, path.resolve(global.ROOT_DIR, 'hide-stack.json'));
 		consola.success('채팅 정보를 저장했습니다.');
 	}
 
