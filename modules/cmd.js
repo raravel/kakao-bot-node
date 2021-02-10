@@ -15,9 +15,10 @@ module.exports = {
         return `현재 ${res.data}명이 소피아를 사용중입니다.`;
     },
     "시리얼": async (chat) => {
+		const help = "\n\n\n사용법: !시리얼 [발급받은 고유닉]";
         let tag = chat.content.trim();
         if ( !tag ) {
-            return "명령어 뒤에 닉네임을 붙여야 합니다.";
+            return "명령어 뒤에 닉네임을 붙여야 합니다." + help;
         }
 
         if ( tag.replace(/([A-Z]|[a-z]|[0-9]|\.|_)+/, "").trim() ) {
@@ -25,7 +26,7 @@ module.exports = {
 			if ( res.data.length > 0 ) {
 				tag = res.data[0].tag;
 			} else {
-				return "고유 닉네임 형식이 맞지 않습니다.";
+				return "고유 닉네임 형식이 맞지 않습니다." + help;
 			}
         }
 

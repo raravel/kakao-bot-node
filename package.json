@@ -15,6 +15,7 @@
 		"consola": "^2.14.0",
 		"forever": "^3.0.2",
 		"global": "^4.4.0",
+		"got": "^11.8.1",
 		"json-proxy-mapper": "^1.1.2",
 		"lossless-json": "^1.0.4",
 		"node-forge": "^0.9.1",

@@ -17,6 +17,7 @@ const M = require('./modules/common.js');
 const dnsPromise = dns.promises;
 const searchIndent = require('./modules/indent.js');
 const searchAnswer = require('./modules/answer.js');
+const ImageAnal = require('./modules/ocr.js');
 require('./modules/polling.js');
 
 if ( !fs.existsSync('./chat-stack.json') ) {
@@ -307,6 +308,14 @@ const chatRecord = (sender, chat) => {
 			return;
 		}
 
+		if ( chat instanceof kakao.SinglePhotoChat ) {
+			const photo = chat.attachmentList[0];
+			const t = await ImageAnal(photo);
+			if ( t ) {
+				chat.text = t;
+			}
+		}
+
 		const senderInfo = chat.Channel.getUserInfo(chat.Sender);
 		const senderStruct = senderInfo.memberStruct;
 		const senderId = senderInfo.user.id.toString();
@@ -439,9 +448,11 @@ const chatRecord = (sender, chat) => {
 
             let result = "";
 
+			/*
             deep.forEach(d => {
                 result += `${d.pos}: ${d.val}\n`;
             });
+			*/
 
             result += answer;
 
