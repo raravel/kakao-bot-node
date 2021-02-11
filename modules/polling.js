@@ -5,6 +5,9 @@ const Kaling = require('./kaling.js');
 const consola = require('consola');
 const fs = require('fs');
 const path = require('path');
+const spoon = require('sopia-core');
+const uuid = require('uuid');
+const sopia = new spoon.Client(uuid.v4());
 
 const recommandBlackList = [
 	4113440, // 박룰루
@@ -80,6 +83,52 @@ const createRecommandLives = async () => {
 	return attachment;
 };
 
+global.lastLiveId = 0;
+const checkYounGoonLive = async () => {
+	const younID = 4376423;
+	const live = await sopia.userManager.userLive(younID);
+	if ( live ) {
+		if ( live.is_live === true ) {
+			if ( live.current_live_id === global.lastLiveId ) {
+				return;
+			}
+
+			console.log('윤군이 라이브중입니다.');
+			global.lastLiveId = live.current_live_id;
+			const link = `https://www.spooncast.net/kr/live/${live.current_live_id}`;
+			const user = await sopia.userManager.userInfo(younID);
+			const l = await sopia.liveManager.liveInfo(live.current_live_id);
+
+			const attachment = Kaling({
+				type: kakao.CustomType.FEED,
+				title: `${user.nickname}님이 방송을 켰습니다!`,
+				desc: `한 번만 와서 놀아주시면 안 될까요?`,
+				link,
+				buttonStyle: kakao.CustomButtonStyle.VERTICAL,
+				buttons: [
+					{
+						title: '방송 스푼 앱으로 열기',
+						dpType: kakao.CustomButtonDisplayType.ALL,
+						link: {
+							'LPC': link,
+							'LMO': link,
+							'LCA': `spooncast://?live_id=${l.id}`,
+							'LCI': `spooncast://?live_id=${l.id}`,
+						},
+					},
+				],
+				thumbnails: [
+					{
+						url: l.imgUrl,
+						style: kakao.CustomImageCropStyle.ORIGINAL,
+					},
+				],
+			});
+			M.sendToAllChannels(attachment);
+		}
+	}
+};
+
 global.poll = {
 	sec:  0,
 	min:  0,
@@ -135,6 +184,8 @@ global.interval = setInterval(async () => {
 		JSON2FILE(global.chatStack, path.resolve(global.ROOT_DIR, 'chat-stack.json'));
 		JSON2FILE(global.hideStack, path.resolve(global.ROOT_DIR, 'hide-stack.json'));
 		consola.success('채팅 정보를 저장했습니다.');
+
+		await checkYounGoonLive();
 	}
 
 }, 1000);

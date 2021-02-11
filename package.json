@@ -23,7 +23,7 @@
 		"nodemailer": "^6.4.11",
 		"request": "^2.88.2",
 		"request-promise": "^4.2.5",
-		"sopia-core": "^1.2.2",
+		"sopia-core": "^1.5.4",
 		"uuid": "^8.2.0"
 	}
 }
