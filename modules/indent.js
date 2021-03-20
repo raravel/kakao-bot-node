@@ -73,6 +73,26 @@ const indentList = [
                     },
                 ],
             },
+			{
+				"key": "diffrent",
+				"pos": "adjective",
+				"indent": [ "다른" ],
+				"sub-indent": [
+					{
+						"key": "user",
+						"pos": "verb",
+						"indent": [ "유저", "사람" ],
+						"sub-indnet": [
+							{
+								"key": "assign",
+								"pos": "verb",
+								"indent": [ "할당", "사용" ],
+								"finish": true,
+							},
+						],
+					},
+				],
+			},
         ],
     }, // serial
     {

@@ -175,9 +175,11 @@ global.interval = setInterval(async () => {
 	const { sec, min, hour, day } = global.poll;
 
 	if ( global.poll.checker('hour', 3) ) {
+		/*
 		const crlTemplate = await createRecommandLives();
 		M.sendToAllChannels(crlTemplate);
         consola.success('등록된 모든 방에, 방송 추천을 전송했습니다.');
+		*/
 	}
 
 	if ( global.poll.checker('min', 1) ) {
@@ -185,7 +187,7 @@ global.interval = setInterval(async () => {
 		JSON2FILE(global.hideStack, path.resolve(global.ROOT_DIR, 'hide-stack.json'));
 		consola.success('채팅 정보를 저장했습니다.');
 
-		await checkYounGoonLive();
+		//await checkYounGoonLive();
 	}
 
 }, 1000);

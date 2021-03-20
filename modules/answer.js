@@ -36,6 +36,20 @@ const answerList = [
 					},
 				],
 			},
+			{
+				"key": "diffrent",
+				"sub-answer": [
+					{
+						"key": "user",
+						"sub-answer": [
+							{
+								"key": "assign",
+								"answer": "시리얼 번호 및 고유닉네임이 다르기 때문입니다. 고유닉네임엔 @가 포함되지 않아야 하며, 대소문자가 정확해야 하고 앞 뒤 공백이 들어가는 상황이 많으니 다시 확인해 주세요.",
+							},
+						],
+					},
+				],
+			},
 		],
 	}, // serial
 	{

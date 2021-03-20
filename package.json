@@ -17,6 +17,7 @@
 		"global": "^4.4.0",
 		"got": "^11.8.1",
 		"json-proxy-mapper": "^1.1.2",
+		"kaling.js": "^1.0.3",
 		"lossless-json": "^1.0.4",
 		"node-forge": "^0.9.1",
 		"node-kakao": "^3.1.2",

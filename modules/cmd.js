@@ -182,4 +182,16 @@ module.exports = {
 		}
 		return rtn.trim();
 	},
+	"테스트": async (chat, sender, client) => {
+		const room = chat.channel.openLink.linkStruct.linkName;
+		await global.kaling.send(room, {
+			template_id: 49971,
+			template_args: {
+				//user: sender.memberStruct.nickname,
+				'THU': sender.memberStruct.profileImageUrl,
+				'THN': sender.memberStruct.nickname,
+				'ROOM': room,
+			},
+		});
+	},
 };

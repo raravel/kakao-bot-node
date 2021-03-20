@@ -9,9 +9,10 @@ const axios = require('axios');
 const BSON = require('bson');
 const consola = require('consola');
 const nodemailer = require('nodemailer');
+const { KakaoLink } = require('kaling.js');
 
 // custom modules
-const Kaling = require('./modules/kaling.js');
+//const Kaling = require('./modules/kaling.js');
 const kakao = require('node-kakao');
 const M = require('./modules/common.js');
 const dnsPromise = dns.promises;
@@ -224,6 +225,8 @@ const chatRecord = (sender, chat) => {
 
 (async () => {
 	const res = await kakaoLogin(config.email, config.passwd, config.duuid, config.name);
+	global.kaling = new KakaoLink(config.api.kaling, 'https://sopia-bot.github.io');
+	await global.kaling.login(config.email, config.passwd);
 
 	consola.success(`${client.clientUser.mainUserInfo.settings.nickName}(${client.clientUser.id.toString()}) 로 로그인하였습니다.`);
 
@@ -470,7 +473,10 @@ const chatRecord = (sender, chat) => {
 
 		const feed = chat.getFeed();
         if ( feed.feedType === kakao.FeedType.OPENLINK_JOIN ) {
-            client.emit('join', chat.channel, feed.members[0]);
+			const member = feed.members[0];
+			const senderInfo = chat.Channel.getUserInfoId(member.userId);
+			const senderStruct = senderInfo.memberStruct;
+            client.emit('join', chat.channel, senderStruct);
         }
     });
 
@@ -478,6 +484,18 @@ const chatRecord = (sender, chat) => {
 		const chid = channel.id.toString();
         consola.info(`${channel.openLink.linkStruct.linkName} (${chid}) 에 ${user.nickName} (${user.userId.toString()}) 님이 입장했습니다.`);
 
+		const room = channel.openLink.linkStruct.linkName;
+		global.kaling.send(room, {
+			template_id: 49971,
+			template_args: {
+				//user: sender.memberStruct.nickname,
+				'THU': user.profileImageUrl,
+				'THN': user.nickname,
+				'ROOM': room,
+			},
+		});
+
+		/*
 		const attachment = Kaling({
 			type: kakao.CustomType.FEED,
 			title: `${user.nickName}님 환영합니다!`,
@@ -514,5 +532,6 @@ const chatRecord = (sender, chat) => {
 			],
 		});
 		channel.sendTemplate(attachment);
+		*/
 	});
 })();
